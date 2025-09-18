@@ -68,6 +68,18 @@ You can run the below commands to do so:
 gcloud auth login
 gcloud config set project $PROJECT_ID
 
+# If you have not already install the required Python packages
+python3 -m venv .venv
+source .venv/bin/activate
+pip install google-cloud-aiplatform[agent_engines,adk]
+
+# Create the Agent Engine instance
 python create-agent-engine.py
 ```
+
+Note that the above command will create the Agent Engine instance in the `us-central1` Google Cloud Region.
+
+Take note of the ID of the created Agent Engine. You can find it either in the output when running the script or on the [Google Cloud Console](https://console.cloud.google.com/vertex-ai/agents/agent-engines).
+
+Use the Agent Engine ID to update the `.env` accordingly.
 
