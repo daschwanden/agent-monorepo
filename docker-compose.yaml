@@ -21,6 +21,7 @@ services:
     restart: always
     volumes:
       - ./.env:/agent/.env
+      - ./agent_registry.csv:/agent/agent_host/agent_registry.csv
       - ~/.config/gcloud:/root/.config/gcloud
     ports:
       - 0.0.0.0:8000:8000
