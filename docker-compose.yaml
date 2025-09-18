@@ -1,0 +1,43 @@
+services:
+  agent-prime:
+    build: ./agent-prime
+    container_name: agent-prime
+    restart: always
+    volumes:
+      - ./.env:/agent/.env
+      - ~/.config/gcloud:/root/.config/gcloud
+    ports:
+      - 0.0.0.0:8001:8001
+    command: "adk api_server --a2a --host 0.0.0.0 --port 8001 . --log_level debug"
+    develop:
+      watch:
+        - action: sync+restart
+          path: agent-prime/agent_prime
+          target: /agent
+
+  agent-host:
+    build: ./agent-host
+    container_name: agent-host
+    restart: always
+    volumes:
+      - ./.env:/agent/.env
+      - ~/.config/gcloud:/root/.config/gcloud
+    ports:
+      - 0.0.0.0:8000:8000
+    command: >
+      /bin/sh -c "
+      if test -z $GOOGLE_AGENT_ENGINE_ID; then
+        adk web --host 0.0.0.0 --port 8000 . --log_level debug
+      else
+        adk web --host 0.0.0.0 --port 8000 --session_service_uri agentengine://${GOOGLE_AGENT_ENGINE_ID} . --log_level debug
+      fi"
+    develop:
+      watch:
+        - action: sync+restart
+          path: agent-host/agent_host
+          target: /agent
+
+
+networks:
+  default:
+    name: agent_default
