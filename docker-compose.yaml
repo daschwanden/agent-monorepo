@@ -20,6 +20,7 @@ services:
     build: ./agent-host
     container_name: agent-host
     restart: always
+    env_file: ".env"
     environment:
       - PORT=8000
     volumes:

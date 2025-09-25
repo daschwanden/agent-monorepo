@@ -7,7 +7,7 @@ from google.adk.cli.fast_api import get_fast_api_app
 # Get the directory where main.py is located
 AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Example session service URI (e.g., SQLite)
-SESSION_SERVICE_URI = "sqlite:///./sessions.db"
+SESSION_SERVICE_URI = f"agentengine://{agentengine_id}" if (agentengine_id := os.getenv('GOOGLE_AGENT_ENGINE_ID')) is not None else "sqlite:///./sessions.db"
 # Example allowed origins for CORS
 ALLOWED_ORIGINS = ["http://localhost", "http://localhost:8080", "*"]
 # Set web=True if you intend to serve a web interface, False otherwise
