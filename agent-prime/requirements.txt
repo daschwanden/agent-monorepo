@@ -1,2 +1,3 @@
-google-cloud-aiplatform[adk]
-cloudpickle
+google-adk
+a2a-sdk
+# Add any other dependencies the agent needs
