@@ -3,8 +3,8 @@ kind: Deployment
 metadata:
   name: host
   namespace: agents
-labels:
-  app: host
+  labels:
+    app: host
 spec:
   replicas: {{ .Values.agents.host.replicas }}
   selector:
@@ -46,7 +46,7 @@ spec:
               value: 'FALSE'
             - name: GOOGLE_API_KEY
               valueFrom:
-                secretkeyRef:
+                secretKeyRef:
                   name: sec-google-api-key
                   key: google-api-key
             {{- end }}
@@ -57,8 +57,8 @@ spec:
               httpHeaders:
                 - name: Probe
                   value: Liveness
-            initialDelaySeconds: 60
-            periodSeconds: 20
+            initialDelaySeconds: 30
+            periodSeconds: 15
             timeoutSeconds: 1
             failureThreshold: 3
           readinessProbe:
@@ -73,6 +73,8 @@ spec:
             timeoutSeconds: 1
             failureThreshold: 3
           volumeMounts:
+            - name: vol-agents-registry
+              mountPath: /app/agent_host/registry
       restartPolicy: Always
       volumes:
         - name: vol-agents-registry

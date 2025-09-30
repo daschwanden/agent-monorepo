@@ -26,6 +26,10 @@ Depending on which option you chose you can now configure the environment variab
 
 ```bash
 cp .env.sample .env
+
+# adjust the values in the .env accordingly
+# then source the file to make the variables available
+source .env
 ```
 
 ## 2. Running on Docker Compose
@@ -76,7 +80,7 @@ kubectl config get-contexts # ensure that you are in the minikube context.
 # 2) Install local registry add-on
 # https://minikube.sigs.k8s.io/docs/handbook/registry
 minikube addons enable registry
-docker run --rm -it --network=host alpine ash -c "apk add socat && socat TCP-LISTEN:5000,reuseaddr,fork TCP:$(minikube ip):5000"
+docker run --rm -it -d --network=host alpine ash -c "apk add socat && socat TCP-LISTEN:5000,reuseaddr,fork TCP:$(minikube ip):5000"
 
 # 3) Push local images to minikube registry
 cd ./agent-host
@@ -95,7 +99,7 @@ docker push localhost:5000/agent-prime:latest
 
 ```bash
 kubectl create ns agents
-kubectl create secret generic sec-google-api-key -n agents --from-literal=google-api-key='${GOOGLE_API_KEY}'
+kubectl create secret generic sec-google-api-key -n agents --from-literal=google-api-key=${GOOGLE_API_KEY}
 ```
 
 ### 3.3. Push the Agent manifests
@@ -115,6 +119,9 @@ minikube service agent-host -n agents
 
 ```bash
 helm uninstall agent-mono
+
+# in case you also want to clean up the minikube environment then run the following command.
+minikube delete
 ```
 
 ## 4. Use Agent Engine Sessions
