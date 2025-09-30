@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prime
+  namespace: agents
+labels:
+  app: prime
+spec:
+  replicas: {{ .Values.agents.prime.replicas }}
+  selector:
+    matchLabels:
+      app: prime
+  template:
+    metadata:
+      labels:
+        app: prime
+    spec:
+      serviceAccountName: agents-sa
+      containers:
+        - name: prime
+          image: {{ .Values.agents.prime.image }}
+          imagePullPolicy: Always
+          {{- if .Values.global.useResourceRequests }}
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+          {{- end }}
+          ports:
+            - name: prime 
+              containerPort: {{ .Values.agents.prime.port }}
+          env:
+            - name: PORT
+              value: '{{ .Values.agents.prime.port }}'
+            {{- if .Values.global.useVertexAi }}
+            - name: GOOGLE_GENAI_USE_VERTEX
+              value: 'TRUE'
+            - name: GOOGLE_CLOUD_PROJECT
+              value: {{ .Values.global.projectId }}
+            - name: GOOGLE_CLOUD_LOCATION
+              value: {{ .Values.global.region }}
+            - name: GOOGLE_AGENT_ENGINE_ID
+              value: {{ .Values.global.agentEngineId }}
+            {{- else }}
+            - name: GOOGLE_GENAI_USE_VERTEX
+              value: 'FALSE'
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretkeyRef:
+                  name: sec-google-api-key
+                  key: google-api-key
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /list-apps
+              port: {{ .Values.agents.prime.port }}
+              httpHeaders:
+                - name: Probe
+                  value: Liveness
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /list-apps
+              port: {{ .Values.agents.prime.port }}
+              httpHeaders:
+                - name: Probe
+                  value: Readiness
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 1
+            failureThreshold: 3
+      restartPolicy: Always

@@ -1,0 +1,34 @@
+## Default values for agent-mono.
+## This is a YAML-formatted file.
+## Declares the variables to be passed into the templates for a local deployment.
+
+## @section Global parameters
+## 
+global:
+  ## @param global.useResourceRequests Allocates resources to the pods.
+  useResourceRequestst: true
+  ##
+  ## @param gobal.useVertexAi Indicates whether to use Google Vertex AI
+  useVertexAi: false
+
+## @section Agent parameters
+##
+agents:
+  host:
+    ## @param agents.host.image Sets the Agent host container image to use.
+    image: "localhost:5000/agent-host:latest"
+    ##
+    ## @param agents.host.port Sets the Agent host port to use.
+    port: 8000 
+    ##
+    ## @params agents.host.replicas Sets the amount of Agent host pods to run.
+    replicas: 1
+  prime:
+    ## @param agents.prime.image Sets the Agent prime container image to use.
+    image: "localhost:5000/agent-prime:latest"
+    ##
+    ## @param agents.prime.port Sets the Agent prime port to use.
+    port: 8001 
+    ##
+    ## @params agents.prime.replicas Sets the amount of Agent prime pods to run.
+    replicas: 1

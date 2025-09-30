@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: host
+  namespace: agents
+labels:
+  app: host
+spec:
+  replicas: {{ .Values.agents.host.replicas }}
+  selector:
+    matchLabels:
+      app: host
+  template:
+    metadata:
+      labels:
+        app: host
+    spec:
+      serviceAccountName: agents-sa
+      containers:
+        - name: host
+          image: {{ .Values.agents.host.image }}
+          imagePullPolicy: Always
+          {{- if .Values.global.useResourceRequests }}
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+          {{- end }}
+          ports:
+            - name: host 
+              containerPort: {{ .Values.agents.host.port }}
+          env:
+            - name: PORT
+              value: '{{ .Values.agents.host.port }}'
+            {{- if .Values.global.useVertexAi }}
+            - name: GOOGLE_GENAI_USE_VERTEX
+              value: 'TRUE'
+            - name: GOOGLE_CLOUD_PROJECT
+              value: {{ .Values.global.projectId }}
+            - name: GOOGLE_CLOUD_LOCATION
+              value: {{ .Values.global.region }}
+            - name: GOOGLE_AGENT_ENGINE_ID
+              value: {{ .Values.global.agentEngineId }}
+            {{- else }}
+            - name: GOOGLE_GENAI_USE_VERTEX
+              value: 'FALSE'
+            - name: GOOGLE_API_KEY
+              valueFrom:
+                secretkeyRef:
+                  name: sec-google-api-key
+                  key: google-api-key
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /list-apps
+              port: {{ .Values.agents.host.port }}
+              httpHeaders:
+                - name: Probe
+                  value: Liveness
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /list-apps
+              port: {{ .Values.agents.host.port }}
+              httpHeaders:
+                - name: Probe
+                  value: Readiness
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 1
+            failureThreshold: 3
+          volumeMounts:
+      restartPolicy: Always
+      volumes:
+        - name: vol-agents-registry
+          configMap:
+            name: cm-agents-registry

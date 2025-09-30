@@ -1,0 +1,10 @@
+apiVersion: v2
+name: agent-mono
+version: 0.1.0
+appVersion: "1.16.0"
+description: A Helm Chart for deploying Agents from a monorepo.
+type: application
+keywords:
+- Agents
+- ADK
+- A2A

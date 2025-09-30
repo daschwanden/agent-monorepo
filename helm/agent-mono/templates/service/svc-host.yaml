@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-host
+  namespace: agents
+spec:
+  ports:
+    - name: host
+      port: {{ .Values.agents.host.port }}
+      targetPort: {{ .Values.agents.host.port }}
+  selector:
+    app: host

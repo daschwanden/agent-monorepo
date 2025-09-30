@@ -12,10 +12,7 @@ Key items to point out:
   - the [Remote Agent](./agent-prime) to showcase the A2A features.
 * The repo ships with a [Docker Compose file](./docker-compose.yaml) to run the Agents in a local development environment.
   - Read more below on how to develop/test the Agents locally on [Docker Compose](https://docs.docker.com/compose/).
- 
-## Requirements
-
-* [Docker Compose](https://docs.docker.com/compose/)
+* Alternatively, you can also run the Agents on [minikube](https://minikube.sigs.k8s.io/) using the provided [helm](https://helm.sh/) Chart.
 
 ## 1. Configuring Access to the Vertex AI API
 
@@ -31,30 +28,96 @@ Depending on which option you chose you can now configure the environment variab
 cp .env.sample .env
 ```
 
-## 2. Running the Agents with Docker Compose
+## 2. Running on Docker Compose
+
+### Requirements
+
+* [Docker Compose](https://docs.docker.com/compose/)
+
+### 2.1. Start the Agents with Docker Compose
 
 ```bash
 docker compose up -d
 ```
 
-### 2.1. Watch the Agent code updates with Docker Compose Watch
+### 2.2. Watch the Agent code updates with Docker Compose Watch
 
 Run the below command in a second terminal
 ```bash
 docker compose watch
 ```
 
-### 2.2. Connect to the ADK WebUI
+### 2.3. Connect to the ADK WebUI
 
 Point your browser to [http://localhost:8000](http://localhost:8000)
 
-### 2.3. Turn down the environment
+### 2.4. Turn down the environment
 
 ```bash
 docker compose down
 ```
 
-## 3. Use Agent Engine Sessions
+## 3. Running on minikube
+
+### Requirements
+
+* [Docker](https://docs.docker.com/)
+* [helm](https://helm.sh/)
+* [kubectl](https://kubernetes.io/docs/reference/kubectl/)
+* [minikube](https://minikube.sigs.k8s.io/)
+
+### 3.1. Create a minikube cluster
+
+```bash
+# 1) Start minikube
+minikube start
+kubectl config get-contexts # ensure that you are in the minikube context.
+
+# 2) Install local registry add-on
+# https://minikube.sigs.k8s.io/docs/handbook/registry
+minikube addons enable registry
+docker run --rm -it --network=host alpine ash -c "apk add socat && socat TCP-LISTEN:5000,reuseaddr,fork TCP:$(minikube ip):5000"
+
+# 3) Push local images to minikube registry
+cd ./agent-host
+docker build -t agent-host .
+cd -
+cd ./agent-prime
+docker build -t agent-prime .
+cd -
+docker tag agent-host localhost:5000/agent-host:latest
+docker tag agent-prime localhost:5000/agent-prime:latest
+docker push localhost:5000/agent-host:latest
+docker push localhost:5000/agent-prime:latest
+```
+
+### 3.2. Create a secret with the Google Vertex API key
+
+```bash
+kubectl create ns agents
+kubectl create secret generic sec-google-api-key -n agents --from-literal=google-api-key='${GOOGLE_API_KEY}'
+```
+
+### 3.3. Push the Agent manifests
+
+```bash
+cd helm
+helm install agent-mono ./agent-mono -f ./agent-mono/values-local.yaml
+```
+
+### 3.4. Connect to the host Agent
+
+```bash
+minikube service agent-host -n agents
+```
+
+### 3.5. Delete the environment
+
+```bash
+helm uninstall agent-mono
+```
+
+## 4. Use Agent Engine Sessions
 
 You can use [Agent Engine Sessions](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/sessions/overview) to maintain the history of interactions between a user and agents.
 
@@ -82,4 +145,3 @@ Note that the above command will create the Agent Engine instance in the `us-cen
 Take note of the ID of the created Agent Engine. You can find it either in the output when running the script or on the [Google Cloud Console](https://console.cloud.google.com/vertex-ai/agents/agent-engines).
 
 Use the Agent Engine ID to update the `.env` accordingly.
-

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-agents-registry
+  namespace: agents
+data:
+  agent_registry.csv: |
+    agent_prime,http://agent-prime{{ .Values.agents.prime.port }}/a2a/agent_prime

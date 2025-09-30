@@ -1,0 +1,43 @@
+## Default values for agent-mono on GKE.
+## This is a YAML-formatted file.
+## Declares the variables to be passed into the templates for a deployment to GKE.
+
+## @section Global parameters
+## 
+global:
+  ## @param global.projectId Sets the Google Cloud Project ID.
+  projectId: "agents-mono"
+  ##
+  ## @param global.region Sets the Google Cloud Region to use.
+  region: "us-central1"
+  ##
+  ## @param global.agentEngineId Sets the Google Agent Engine ID
+  agentEngineId: "1234567890123456789"
+  ##
+  ## @param global.useResourceRequests Allocates resources to the pods.
+  useResourceRequestst: true
+  ##
+  ## @param gobal.useVertexAi Indicates whether to use Google Vertex AI
+  useVertexAi: true
+
+## @section Agent parameters
+##
+agents:
+  host:
+    ## @param agents.host.image Sets the Agent host container image to use.
+    image: "ghcr.io/daschwanden/agent-host:latest"
+    ##
+    ## @param agents.host.port Sets the Agent host port to use.
+    port: 8000 
+    ##
+    ## @params agents.host.replicas Sets the amount of Agent host pods to run.
+    replicas: 1
+  prime:
+    ## @param agents.prime.image Sets the Agent prime container image to use.
+    image: "ghcr.io/daschwanden/agent-prime:latest"
+    ##
+    ## @param agents.prime.port Sets the Agent prime port to use.
+    port: 8001 
+    ##
+    ## @params agents.prime.replicas Sets the amount of Agent prime pods to run.
+    replicas: 1
