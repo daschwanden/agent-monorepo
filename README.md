@@ -124,7 +124,60 @@ helm uninstall agent-mono
 minikube delete
 ```
 
-## 4. Use Agent Engine Sessions
+## 4. Running on GKE
+
+### Requirements
+
+* [gcloud](https://cloud.google.com/sdk/gcloud)
+* [helm](https://helm.sh/)
+* [kubectl](https://kubernetes.io/docs/reference/kubectl/)
+
+### 4.1. Create a GKE cluster
+
+For running the Agents on GKE you will need a [Google Cloud Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) with [billing enabled](https://cloud.google.com/billing/docs/concepts).
+
+Follow the instructions in the [online docs to create a GKE cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster#gcloud_1).
+
+Once your GKE cluster is provisioned and ready fetch the credentials to access the cluster.
+
+```bash
+# Login to gcloud
+gcloud auth login
+
+# The command to fetch the credentials looks similar to the below
+# Modify the variables to match your setup.
+gcloud container clusters get-credentials ${CLUSTER_NAME} --zone us-central1-a --project ${PROJECT_ID}
+```
+
+### 4.2. Create a secret with the Google Vertex API key
+
+```bash
+kubectl create ns agents
+kubectl create secret generic sec-google-api-key -n agents --from-literal=google-api-key=${GOOGLE_API_KEY}
+```
+
+### 4.3. Push the Agent manifests
+
+```bash
+cd helm
+helm install agent-mono ./agent-mono -f ./agent-mono/values-gke.yaml
+```
+
+### 4.4. Connect to the host Agent
+
+```bash
+kubectl port-forward service/agent-host 8000:8000 -n agents
+```
+
+You can now point your browser to [http://localhost:8000](http://localhost:8000) to interact with the Agent.
+
+### 4.5. Delete the environment
+
+```bash
+helm uninstall agent-mono
+```
+
+## 5. Use Agent Engine Sessions
 
 You can use [Agent Engine Sessions](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/sessions/overview) to maintain the history of interactions between a user and agents.
 
