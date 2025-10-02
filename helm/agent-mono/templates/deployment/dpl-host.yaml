@@ -33,16 +33,16 @@ spec:
             - name: PORT
               value: '{{ .Values.agents.host.port }}'
             {{- if .Values.global.useVertexAi }}
-            - name: GOOGLE_GENAI_USE_VERTEX
+            - name: GOOGLE_GENAI_USE_VERTEXAI
               value: 'TRUE'
             - name: GOOGLE_CLOUD_PROJECT
               value: {{ .Values.global.projectId }}
             - name: GOOGLE_CLOUD_LOCATION
               value: {{ .Values.global.region }}
             - name: GOOGLE_AGENT_ENGINE_ID
-              value: {{ .Values.global.agentEngineId }}
+              value: '{{ .Values.global.agentEngineId }}'
             {{- else }}
-            - name: GOOGLE_GENAI_USE_VERTEX
+            - name: GOOGLE_GENAI_USE_VERTEXAI
               value: 'FALSE'
             - name: GOOGLE_API_KEY
               valueFrom:
