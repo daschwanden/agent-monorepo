@@ -32,6 +32,10 @@ cp .env.sample .env
 source .env
 ```
 
+The examples in sections 2 - 4 use the Google AI Studio API Key approach.
+
+Refer to section 5 for the required steps to use more features on the Vertex AI Agent Engine with a Google Cloud Project.
+
 ## 2. Running on Docker Compose
 
 ### Requirements
@@ -177,15 +181,18 @@ You can now point your browser to [http://localhost:8000](http://localhost:8000)
 helm uninstall agent-mono
 ```
 
-## 5. Use Agent Engine Sessions
+## 5. Use Vertex AI Agent Engine Features
 
-You can use [Agent Engine Sessions](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/sessions/overview) to maintain the history of interactions between a user and agents.
+Google Cloud [Vertex AI Agent Engine](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/overview) offers several interesting features that you can take advantage of even when you are not using it as the runtime for your Agents.
 
-To use this feature you have to create a [Vertext Agent Engine instance](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/sessions/manage-sessions-adk#create-agent-engine).
+- You can use [Agent Engine Sessions](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/sessions/overview) to maintain the history of interactions between a user and agents.
+- Furthermore, [Memory Bank](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/memory-bank/overview) lets you dynamically generate long-term memories based on users' conversations with your agent
 
-Note that for this feature you will need a [Google Cloud Project](https://console.cloud.google.com/projectselector2/home/dashboard) with [billing enabled](https://cloud.google.com/billing/docs/how-to/verify-billing-enabled#confirm_billing_is_enabled_on_a_project) and the [Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com,storage.googleapis.com) enabled. 
+To use these features ([and more features](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/overview)) you have to create a [Vertext Agent Engine instance](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/sessions/manage-sessions-adk#create-agent-engine).
 
-You can run the below commands to do so:
+Note that for the features you will need a [Google Cloud Project](https://console.cloud.google.com/projectselector2/home/dashboard) with [billing enabled](https://cloud.google.com/billing/docs/how-to/verify-billing-enabled#confirm_billing_is_enabled_on_a_project) and the [Vertex AI API](https://console.cloud.google.com/flows/enableapi?apiid=aiplatform.googleapis.com,storage.googleapis.com) enabled. 
+
+You can run the below commands to create a Vertex Engine instance:
 
 ```bash
 gcloud auth login
@@ -204,4 +211,19 @@ Note that the above command will create the Agent Engine instance in the `us-cen
 
 Take note of the ID of the created Agent Engine. You can find it either in the output when running the script or on the [Google Cloud Console](https://console.cloud.google.com/vertex-ai/agents/agent-engines).
 
-Use the Agent Engine ID to update the `.env` accordingly.
+
+### 5.1. Running on Docker Compose
+
+To start using the Agent Engine features with Docker Compose you can follow the approach outlined below:
+
+1. Update the Agent Engine ID in the `.env` file accordingly.
+2. Make sure you are successfully logged in by running `gcloud auth login` and `gcloud auth aapplication-default login` 
+3. Then you can follow the steps outlined in [section 2](#2-running-on-docker-compose) above.
+
+### 5.2. Running on GKE
+
+To start using the Agent Engine features with GKE you can follow the approach outlined below:
+
+1. Follow the steps outlined in [section 4](#4-running-on-gke) to create a GKE cluster with [Workload Identity Federation for GKE](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity) enabled.
+2. Grant the principal `principal://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${PROJECT_ID}.svc.id.goog/subject/ns/agents/sa/agents-sa` access to the [Vertex AI User](https://cloud.google.com/iam/docs/roles-permissions/aiplatform#aiplatform.user)(roles/aiplatform.user) role.
+3. The follow the steps outlined in [section 4](#4-running-on-gke) using the [values-agent-engine.yaml](./helm/agent-mono/values-agent-engine.yaml) for the `helm install` command.
