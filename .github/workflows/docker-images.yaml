@@ -12,7 +12,7 @@ on:
 # REGISTRY defines the Container registry domain for the Docker images that this workflow builds.
 env:
   REGISTRY: ghcr.io
-  OWNER: ${{ github.repository.owner }}
+  OWNER: ${{ github.repository_owner }}
   
 
 jobs:
