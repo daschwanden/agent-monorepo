@@ -217,7 +217,7 @@ Take note of the ID of the created Agent Engine. You can find it either in the o
 To start using the Agent Engine features with Docker Compose you can follow the approach outlined below:
 
 1. Update the Agent Engine ID in the `.env` file accordingly.
-2. Make sure you are successfully logged in by running `gcloud auth login` and `gcloud auth aapplication-default login` 
+2. Make sure you are successfully logged in by running `gcloud auth login` and `gcloud auth application-default login` 
 3. Then you can follow the steps outlined in [section 2](#2-running-on-docker-compose) above.
 
 ### 5.2. Running on GKE
@@ -226,4 +226,5 @@ To start using the Agent Engine features with GKE you can follow the approach ou
 
 1. Follow the steps outlined in [section 4](#4-running-on-gke) to create a GKE cluster with [Workload Identity Federation for GKE](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity) enabled.
 2. Grant the principal `principal://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${PROJECT_ID}.svc.id.goog/subject/ns/agents/sa/agents-sa` access to the [Vertex AI User](https://cloud.google.com/iam/docs/roles-permissions/aiplatform#aiplatform.user)(roles/aiplatform.user) role.
-3. The follow the steps outlined in [section 4](#4-running-on-gke) using the [values-agent-engine.yaml](./helm/agent-mono/values-agent-engine.yaml) for the `helm install` command.
+3. Update the [values-agent-engine.yaml](./helm/agent-mono/values-agent-engine.yaml) with your `PROJECT_ID` and the Agent Engine ID created above.
+4. The follow the steps outlined in [section 4](#4-running-on-gke) using the [values-agent-engine.yaml](./helm/agent-mono/values-agent-engine.yaml) for the `helm install` command.
