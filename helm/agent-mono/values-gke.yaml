@@ -15,7 +15,7 @@ global:
   agentEngineId: "1234567890123456789"
   ##
   ## @param global.useResourceRequests Allocates resources to the pods.
-  useResourceRequestst: true
+  useResourceRequests: true
   ##
   ## @param gobal.useVertexAi Indicates whether to use Google Vertex AI
   useVertexAi: true
