@@ -12,6 +12,8 @@ on:
 # REGISTRY defines the Container registry domain for the Docker images that this workflow builds.
 env:
   REGISTRY: ghcr.io
+  OWNER: ${{ github.repository.owner }}
+  
 
 jobs:
   list-agents:
@@ -30,8 +32,6 @@ jobs:
         id: agents
         run: |
           echo 'agents=["agent-host", "agent-prime"]' >> "$GITHUB_OUTPUT"
-      - name: Checkout repository
-        uses: actions/checkout@v4
       # Uses the `docker/login-action` action to log in to the Container registry using the account and password that will publish the packages. Once published, the packages are scoped to the account defined here.
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
@@ -60,7 +60,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ matrix.agent }}
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.agent }}
           tags: |
             type=ref,event=tag
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
@@ -70,10 +70,10 @@ jobs:
         id: push
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
-          context: ./${{ matrix.agent }}
+          context: "{{defaultContext}}:${{ matrix.agent }}"
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ matrix.agent }}:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.agent }}:latest
             ${{ steps.meta.outputs.tags }}
           labels: 
             ${{ steps.meta.outputs.labels }}
