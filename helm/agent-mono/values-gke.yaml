@@ -5,20 +5,11 @@
 ## @section Global parameters
 ## 
 global:
-  ## @param global.projectId Sets the Google Cloud Project ID.
-  projectId: "agents-mono"
-  ##
-  ## @param global.region Sets the Google Cloud Region to use.
-  region: "us-central1"
-  ##
-  ## @param global.agentEngineId Sets the Google Agent Engine ID
-  agentEngineId: "1234567890123456789"
-  ##
   ## @param global.useResourceRequests Allocates resources to the pods.
   useResourceRequests: true
   ##
   ## @param gobal.useVertexAi Indicates whether to use Google Vertex AI
-  useVertexAi: true
+  useVertexAi: false
 
 ## @section Agent parameters
 ##
