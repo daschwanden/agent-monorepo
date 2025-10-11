@@ -19,6 +19,7 @@ from google.adk.agents.llm_agent import Agent
 from google.adk.agents.remote_a2a_agent import AGENT_CARD_WELL_KNOWN_PATH
 from google.adk.agents.remote_a2a_agent import RemoteA2aAgent
 from google.adk.tools.example_tool import ExampleTool
+from google.adk.tools.preload_memory_tool import PreloadMemoryTool
 from google.genai import types
 
 user_id="DEMO-USER"
@@ -27,6 +28,11 @@ user_id="DEMO-USER"
 def roll_die(sides: int) -> int:
   """Roll a die and return the rolled result."""
   return random.randint(1, sides)
+
+async def auto_save_session_to_memory_callback(callback_context):
+    await callback_context._invocation_context.memory_service.add_session_to_memory(
+        callback_context._invocation_context.session
+    )
 
 roll_agent = Agent(
     name="roll_agent",
@@ -112,7 +118,7 @@ root_agent = Agent(
         "You are DicePrimeBot, ready to roll dice and check prime numbers."
     ),
     sub_agents=[roll_agent] + remote_agents,
-    tools=[example_tool],
+    tools=[example_tool, PreloadMemoryTool()],
     generate_content_config=types.GenerateContentConfig(
         safety_settings=[
             types.SafetySetting(  # avoid false alarm about rolling dice.
@@ -121,4 +127,5 @@ root_agent = Agent(
             ),
         ]
     ),
+    after_agent_callback=auto_save_session_to_memory_callback,
 )

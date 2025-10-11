@@ -1,4 +1,5 @@
 import os
+#import logging
 
 import uvicorn
 from fastapi import FastAPI
@@ -26,6 +27,11 @@ app: FastAPI = get_fast_api_app(
     allow_origins=ALLOWED_ORIGINS,
     web=SERVE_WEB_INTERFACE,
 )
+
+#logging.basicConfig(
+#    level=logging.DEBUG,
+#    format='%(asctime)s - %(levelname)s - %(name)s - %(message)s'
+#)
 
 # You can add more FastAPI routes or configurations below if needed
 # Example:
