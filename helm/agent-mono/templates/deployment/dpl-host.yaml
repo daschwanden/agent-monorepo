@@ -57,7 +57,7 @@ spec:
               httpHeaders:
                 - name: Probe
                   value: Liveness
-            initialDelaySeconds: 30
+            initialDelaySeconds: 15
             periodSeconds: 15
             timeoutSeconds: 1
             failureThreshold: 3
@@ -68,7 +68,7 @@ spec:
               httpHeaders:
                 - name: Probe
                   value: Readiness
-            initialDelaySeconds: 30
+            initialDelaySeconds: 15
             periodSeconds: 15
             timeoutSeconds: 1
             failureThreshold: 3
