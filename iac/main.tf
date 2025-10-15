@@ -290,3 +290,9 @@ resource "google_logging_project_sink" "logs" {
     use_partitioned_tables = true
   }
 }
+
+resource "google_bigquery_dataset_iam_member" "bq_logs_editor" {
+  dataset_id = google_bigquery_dataset.logs.dataset_id
+  role       = "roles/bigquery.dataEditor"
+  member     = google_logging_project_sink.logs.writer_identity
+}
