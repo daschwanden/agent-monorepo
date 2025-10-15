@@ -17,6 +17,9 @@
 data "google_project" "project" {
 }
 
+data "google_compute_default_service_account" "default" {
+}
+
 ##########################################################################
 # Enable the required Cloud APIs
 ##########################################################################
@@ -27,23 +30,16 @@ resource "google_project_service" "aiplatform" {
   disable_dependent_services = false
 }
 
+resource "google_project_service" "bigquery" {
+  project = var.project_id
+  service = "bigquery.googleapis.com"
+
+  disable_dependent_services = false
+}
+
 resource "google_project_service" "cloudresourcemanager" {
   project = var.project_id
   service = "cloudresourcemanager.googleapis.com"
-
-  disable_dependent_services = false
-}
-
-resource "google_project_service" "logging" {
-  project = var.project_id
-  service = "logging.googleapis.com"
-
-  disable_dependent_services = false
-}
-
-resource "google_project_service" "monitoring" {
-  project = var.project_id
-  service = "monitoring.googleapis.com"
 
   disable_dependent_services = false
 }
@@ -58,6 +54,20 @@ resource "google_project_service" "cloudtrace" {
 resource "google_project_service" "container" {
   project = var.project_id
   service = "container.googleapis.com"
+
+  disable_dependent_services = false
+}
+
+resource "google_project_service" "logging" {
+  project = var.project_id
+  service = "logging.googleapis.com"
+
+  disable_dependent_services = false
+}
+
+resource "google_project_service" "monitoring" {
+  project = var.project_id
+  service = "monitoring.googleapis.com"
 
   disable_dependent_services = false
 }
@@ -126,22 +136,32 @@ resource "google_compute_firewall" "allow_ssh_ingress_from_iap" {
 ##########################################################################
 # Set up the Artifact Registry 
 ##########################################################################
-#resource "google_artifact_registry_repository" "artifact_registry" {
-#  location      = var.region
-#  repository_id = "artifact-registry"
-#  description   = "docker repository"
-#  format        = "DOCKER"
-#}
-#
-#resource "google_artifact_registry_repository_iam_member" "agent_artifact_writer" {
-#  location = google_artifact_registry_repository.artifact_registry.location
-#  repository = google_artifact_registry_repository.artifact_registry.name
-#  role = "roles/artifactregistry.writer"
-#  member      = "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${var.project_id}.svc.id.goog/subject/ns/agents/sa/agents-sa"
-#  depends_on = [
-#    google_container_cluster.agent_cluster
-#  ]
-#}
+resource "google_artifact_registry_repository" "artifact_registry" {
+  location      = var.region
+  repository_id = "agents"
+  description   = "docker repository"
+  format        = "DOCKER"
+}
+
+resource "google_artifact_registry_repository_iam_member" "agent_artifact_writer" {
+  location = google_artifact_registry_repository.artifact_registry.location
+  repository = google_artifact_registry_repository.artifact_registry.name
+  role = "roles/artifactregistry.writer"
+  member      = "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${var.project_id}.svc.id.goog/subject/ns/agents/sa/agents-sa"
+  depends_on = [
+    google_container_cluster.agent_cluster
+  ]
+}
+
+resource "google_artifact_registry_repository_iam_member" "agent_artifact_reader" {
+  location = google_artifact_registry_repository.artifact_registry.location
+  repository = google_artifact_registry_repository.artifact_registry.name
+  role = "roles/artifactregistry.reader"
+  member     = "serviceAccount:${data.google_compute_default_service_account.default.email}"
+  depends_on = [
+    google_container_cluster.agent_cluster
+  ]
+}
 
 ##########################################################################
 # Set up the NAT Router
@@ -169,7 +189,7 @@ resource "google_compute_router_nat" "agent_router_nat" {
   }
 }
 
-##########################################################################
+###########################################################################
 # Set up the GKE cluster
 ##########################################################################
 data "google_container_engine_versions" "gke_version" {
@@ -196,6 +216,7 @@ resource "google_container_cluster" "agent_cluster" {
   }
 
   node_config {
+    #service_account = data.google_compute_default_service_account.default.email
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
       "https://www.googleapis.com/auth/devstorage.read_only",
@@ -238,4 +259,37 @@ resource "google_container_cluster" "agent_cluster" {
   enable_shielded_nodes = true
 
   deletion_protection = false
+}
+
+resource "google_bigquery_dataset" "logs" {
+  project       = var.project_id
+  dataset_id    = "logs"
+  friendly_name = "agent logs"
+  location      = var.region
+}
+
+resource "google_bigquery_dataset" "telemetry" {
+  project       = var.project_id
+  dataset_id    = "telemetry"
+  friendly_name = "agent telemetry"
+  location      = var.region
+}
+
+resource "google_bigquery_dataset" "audit" {
+  project       = var.project_id
+  dataset_id    = "audit"
+  friendly_name = "agent audit logs"
+  location      = var.region
+}
+
+
+resource "google_logging_project_sink" "logs" {
+  project                = var.project_id
+  name                   = "logs"
+  filter                 = "resource.type=\"k8s_container\" resource.labels.namespace_name=\"agents\""
+  destination            = "bigquery.googleapis.com/${google_bigquery_dataset.logs.id}"
+  unique_writer_identity = true
+  bigquery_options {
+    use_partitioned_tables = true
+  }
 }
