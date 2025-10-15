@@ -158,9 +158,6 @@ resource "google_artifact_registry_repository_iam_member" "agent_artifact_reader
   repository = google_artifact_registry_repository.artifact_registry.name
   role = "roles/artifactregistry.reader"
   member     = "serviceAccount:${data.google_compute_default_service_account.default.email}"
-  depends_on = [
-    google_container_cluster.agent_cluster
-  ]
 }
 
 ##########################################################################
@@ -216,7 +213,7 @@ resource "google_container_cluster" "agent_cluster" {
   }
 
   node_config {
-    #service_account = data.google_compute_default_service_account.default.email
+    service_account = data.google_compute_default_service_account.default.email
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
       "https://www.googleapis.com/auth/devstorage.read_only",
