@@ -18,7 +18,7 @@ ALLOWED_ORIGINS = ["http://localhost", "http://localhost:8080", "*"]
 # Set web=True if you intend to serve a web interface, False otherwise
 SERVE_WEB_INTERFACE = True
 # Set trace_to_cloud=True if you intend to send your traces to Google Cloud, False otherwise
-TRACE_TO_CLOUD=os.getenv('TRACE_TO_CLOUD', 'False') == 'True'
+TRACE_TO_CLOUD=os.getenv("TRACE_TO_CLOUD", 'False').lower() in ('true', '1', 't')
 
 # Call the function to get the FastAPI app instance
 # Ensure the agent directory name ('capital_agent') matches your agent folder
