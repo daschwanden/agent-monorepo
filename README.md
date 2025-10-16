@@ -150,7 +150,7 @@ gcloud auth login
 
 # The command to fetch the credentials looks similar to the below
 # Modify the variables to match your setup.
-gcloud container clusters get-credentials ${CLUSTER_NAME} --zone us-central1-a --project ${PROJECT_ID}
+gcloud container clusters get-credentials agent-cluster --zone us-central1-b --project ${PROJECT_ID}
 ```
 
 ### 4.2. Create a secret with the Google Vertex API key
@@ -225,6 +225,6 @@ To start using the Agent Engine features with Docker Compose you can follow the 
 To start using the Agent Engine features with GKE you can follow the approach outlined below:
 
 1. Follow the steps outlined in [section 4](#4-running-on-gke) to create a GKE cluster with [Workload Identity Federation for GKE](https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity) enabled.
-2. Grant the principal `principal://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${PROJECT_ID}.svc.id.goog/subject/ns/agents/sa/agents-sa` access to the [Vertex AI User](https://cloud.google.com/iam/docs/roles-permissions/aiplatform#aiplatform.user)(roles/aiplatform.user) role.
+2. Grant the principal `principal://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${PROJECT_ID}.svc.id.goog/subject/ns/agents/sa/agents-sa` access to the [Vertex AI User](https://cloud.google.com/iam/docs/roles-permissions/aiplatform#aiplatform.user)(roles/aiplatform.user) and the [Cloud Trace Agent](https://cloud.google.com/trace/docs/iam#cloudtrace.agent)(roles/cloudtrace.agent) role.
 3. Update the [values-agent-engine.yaml](./helm/agent-mono/values-agent-engine.yaml) with your `PROJECT_ID` and the Agent Engine ID created above.
 4. The follow the steps outlined in [section 4](#4-running-on-gke) using the [values-agent-engine.yaml](./helm/agent-mono/values-agent-engine.yaml) for the `helm install` command.
