@@ -29,10 +29,10 @@ output "zone" {
   value       = var.zone
 }
 
-#output "artifact_registry_id" {
-#  description = "The Artifact Registry ID"
-#  value       = google_artifact_registry_repository.artifact_registry.repository_id
-#}
+output "artifact_registry_id" {
+  description = "The Artifact Registry ID"
+  value       = google_artifact_registry_repository.artifact_registry.repository_id
+}
 
 output "gke_cluster_location" {
   description = "The location of the GKE cluster"

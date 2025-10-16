@@ -19,6 +19,8 @@ global:
   ##
   ## @param gobal.useVertexAi Indicates whether to use Google Vertex AI
   useVertexAi: true
+  ## @param gobal.traceToCloud Indicates whether to send traces to Google Cloud
+  traceToCloud: True
 
 ## @section Agent parameters
 ##

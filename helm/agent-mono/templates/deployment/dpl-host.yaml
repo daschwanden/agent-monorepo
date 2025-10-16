@@ -41,6 +41,8 @@ spec:
               value: {{ .Values.global.region }}
             - name: GOOGLE_AGENT_ENGINE_ID
               value: '{{ .Values.global.agentEngineId }}'
+            - name: TRACE_TO_CLOUD
+              value: '{{ .Values.global.traceToCloud}}'
             {{- else }}
             - name: GOOGLE_GENAI_USE_VERTEXAI
               value: 'FALSE'

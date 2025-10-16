@@ -17,6 +17,8 @@ SESSION_SERVICE_URI = f"agentengine://{agentengine_id}" if agentengine_id else "
 ALLOWED_ORIGINS = ["http://localhost", "http://localhost:8080", "*"]
 # Set web=True if you intend to serve a web interface, False otherwise
 SERVE_WEB_INTERFACE = True
+# Set trace_to_cloud=True if you intend to send your traces to Google Cloud, False otherwise
+TRACE_TO_CLOUD=os.getenv("TRACE_TO_CLOUD", 'False').lower() in ('true', '1', 't')
 
 # Call the function to get the FastAPI app instance
 # Ensure the agent directory name ('capital_agent') matches your agent folder
@@ -26,6 +28,7 @@ app: FastAPI = get_fast_api_app(
     session_service_uri=SESSION_SERVICE_URI,
     allow_origins=ALLOWED_ORIGINS,
     web=SERVE_WEB_INTERFACE,
+    trace_to_cloud=TRACE_TO_CLOUD,
 )
 
 #logging.basicConfig(
