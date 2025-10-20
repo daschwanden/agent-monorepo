@@ -140,7 +140,28 @@ minikube delete
 
 For running the Agents on GKE you will need a [Google Cloud Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) with [billing enabled](https://cloud.google.com/billing/docs/concepts).
 
-Follow the instructions in the [online docs to create a GKE cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster#gcloud_1).
+You have two options to get started with Agents on GKE.
+
+The quick way with option 1) with the GKE cluster as the only Google Cloud resource required.
+Or with option 2) which also provisions the Google Cloud resources that you will need for a more sophisticated implementation described in [section 5](#5-use-vertex-ai-agent-engine-features).
+
+1. In case you want to get started with a GKE cluster only (and none of the other Google Cloud resources) you can follow the instructions in the [online docs to create a GKE cluster](https://cloud.google.com/kubernetes-engine/docs/how-to/creating-a-zonal-cluster#gcloud_1).
+2. For your convenience you can use the Terraform script in the [iac](./iac) folder to provision the required Google Cloud resources.
+
+```bash
+# These are the commands required for option 2) above
+cd ./iac
+# Initialise Terraform
+terraform init
+
+# Plan to see the resources that the Terraform script will provision
+terraform plan -var "project_id=${PROJECT_ID}"
+
+# Apply to provision the resources
+terraform apply -var  "project_id=${PROJECT_ID}"
+
+cd ..
+```
 
 Once your GKE cluster is provisioned and ready fetch the credentials to access the cluster.
 
